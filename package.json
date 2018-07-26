@@ -1,17 +1,44 @@
 {
-  "name": "angular-dashboard-server",
-  "version": "1.0.0",
-  "description": "",
-  "main": "app.js",
-  "scripts": {
-    "start": "node src/app.js"
+  "name": "ng-dashboard-server",
+  "version": "0.0.3",
+  "description": "A simle angular dashboard server",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Elcaten/ng-dashboard-server"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Andew Lineyschikov",
+  "license": "MIT",
+  "scripts": {
+    "start": "npm run serve",
+    "build": "npm run build-ts && npm run tslint",
+    "serve": "node dist/app.js",
+    "watch-node": "nodemon dist/app.js",
+    "watch": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold\" \"npm run watch-ts\" \"npm run watch-node\"",
+    "build-ts": "tsc",
+    "watch-ts": "tsc -w",
+    "tslint": "tslint -c tslint.json -p tsconfig.json",
+    "debug": "npm run build && npm run watch-debug",
+    "serve-debug": "nodemon --inspect dist/app.js",
+    "watch-debug": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold\" \"npm run watch-ts\" \"npm run serve-debug\""
+  },
   "dependencies": {
     "body-parser": "^1.18.3",
+    "cors": "^2.8.4",
     "express": "^4.16.3",
+    "faker": "^4.1.0",
     "mongoose": "^5.2.4",
     "socket.io": "^2.1.1"
+  },
+  "devDependencies": {
+    "@types/body-parser": "^1.17.0",
+    "@types/cors": "^2.8.4",
+    "@types/express": "^4.16.0",
+    "@types/faker": "^4.1.2",
+    "@types/mongodb": "^3.1.2",
+    "@types/mongoose": "^5.2.2",
+    "@types/socket.io": "^1.4.36",
+    "concurrently": "^3.6.1",
+    "nodemon": "^1.18.3",
+    "typescript": "^2.9.2"
   }
 }
