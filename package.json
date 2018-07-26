@@ -26,8 +26,7 @@
     "cors": "^2.8.4",
     "express": "^4.16.3",
     "faker": "^4.1.0",
-    "mongoose": "^5.2.4",
-    "socket.io": "^2.1.1"
+    "mongoose": "^5.2.4"
   },
   "devDependencies": {
     "@types/body-parser": "^1.17.0",
@@ -36,9 +35,10 @@
     "@types/faker": "^4.1.2",
     "@types/mongodb": "^3.1.2",
     "@types/mongoose": "^5.2.2",
-    "@types/socket.io": "^1.4.36",
+    "@types/ws": "^5.1.2",
     "concurrently": "^3.6.1",
     "nodemon": "^1.18.3",
+    "tslint": "^5.11.0",
     "typescript": "^2.9.2"
   }
 }

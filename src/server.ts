@@ -1,11 +1,14 @@
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import express, { Express, NextFunction, Request, Response } from 'express';
+import * as faker from 'faker';
 import http from 'http';
 import mongoose from 'mongoose';
-import SocketIO from 'socket.io';
+import { setInterval } from 'timers';
+import * as WebSocket from 'ws';
 
 import { connectionOptions, dbUri } from './config/db';
+import { apiPort, socketPort } from './config/env';
 import { hostController } from './controllers/host';
 import { processController } from './controllers/process';
 import { serviceController } from './controllers/service';
@@ -17,30 +20,18 @@ import { Service } from './models/service';
 export class Server {
   private app: Express = express();
   private server = http.createServer(this.app);
-  private io = SocketIO(this.server);
-
-  private port: any = process.env.PORT || 3301;
-  private socketPort: any = 3302;
+  private wss = new WebSocket.Server({ server: this.server });
 
   public run = (): void => {
     this.openDatabaseConnection();
     this.populateDatabaseIfEmpty();
-    this.setUpMiddleware();
+    this.setupMiddleware();
     this.setupRoutes();
+    this.setupSocket();
+    setInterval(this.updateHostsData, 5000);
 
-    this.app.listen(this.port, () => {
-      console.log(`Server running at http://localhost:${this.port}`);
-    });
-
-    this.io.on('connection', (socket) => {
-      console.log('User connected');
-
-      socket.on('disconnect', () => {
-        console.log('User disconnected');
-      });
-    });
-
-    this.server.listen(this.socketPort, () => console.log(`Listening on port ${this.socketPort}`));
+    this.app.listen(apiPort, () => console.log(`API server running at ${apiPort} port`));
+    this.server.listen(socketPort, () => console.log(`WebSocket server running at ${socketPort} port`));
   }
 
   /**
@@ -48,12 +39,8 @@ export class Server {
    */
   private openDatabaseConnection = (): void => {
     mongoose.connect(dbUri, connectionOptions).then(
-      () => {
-        console.log('Database connection established!');
-      },
-      (err) => {
-        console.log('Error connecting Database instance due to: ', err);
-      }
+      () => console.log('Database connection established!'),
+      (err) => console.log('Error connecting Database instance due to: ', err)
     );
   }
 
@@ -91,8 +78,7 @@ export class Server {
   /**
    * Sets up application middleware
    */
-  private setUpMiddleware(): void {
-    const port = process.env.PORT || 3301;
+  private setupMiddleware(): void {
     this.app.use(cors());
     this.app.use(bodyParser.urlencoded({ extended: true }));
     this.app.use(bodyParser.json());
@@ -107,28 +93,63 @@ export class Server {
    */
   private setupRoutes = (): void => {
     this.app
-      .route('/hosts')
+      .route('api/hosts')
       .get(hostController.get)
       .post(hostController.post);
     this.app
-      .route('/hosts/:hostid')
+      .route('api/hosts/:hostid')
       .put(hostController.put)
       .delete(hostController.delete);
     this.app
-      .route('/services')
+      .route('api/services')
       .get(serviceController.get)
       .post(serviceController.post);
     this.app
-      .route('/services/:serviceid')
+      .route('api/services/:serviceid')
       .put(serviceController.put)
       .delete(serviceController.delete);
     this.app
-      .route('/processes')
+      .route('api/processes')
       .get(processController.get)
       .post(processController.post);
     this.app
-      .route('/services/:processid')
+      .route('api/services/:processid')
       .put(serviceController.put)
       .delete(serviceController.delete);
+  }
+
+  private setupSocket = (): void => {
+    this.wss.on('connection', (ws) => {
+      console.log('client connected to socket');
+      const intervalId = setInterval(async () => {
+        const data = {
+          hosts: await Host.find({}),
+          services: await Service.find({}),
+          processes: await Process.find({}),
+        };
+        ws.send(JSON.stringify(data));
+      }, 5000);
+
+      ws.on('error', (err) => {
+        if ((err as any).code === 'ECONNRESET') {
+          console.log('client disconnected from socket');
+          clearInterval(intervalId);
+          ws.close();
+        }
+      });
+    });
+  }
+
+  /**
+   * Updates host's cpu, disk and ram usage
+   */
+  private async updateHostsData() {
+    const hosts = await Host.find({});
+    for (const host of hosts) {
+      host.disk = faker.random.number({ min: 0, max: 100 });
+      host.cpu = faker.random.number({ min: 0, max: 100 });
+      host.ram = faker.random.number({ min: 0, max: 100 });
+      await Host.findByIdAndUpdate(host.id, host, { new: true });
+    }
   }
 }
