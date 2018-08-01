@@ -93,29 +93,29 @@ export class Server {
    */
   private setupRoutes = (): void => {
     this.app
-      .route('api/hosts')
+      .route('/api/hosts')
       .get(hostController.get)
       .post(hostController.post);
     this.app
-      .route('api/hosts/:hostid')
+      .route('/api/hosts/:hostid')
       .put(hostController.put)
       .delete(hostController.delete);
     this.app
-      .route('api/services')
+      .route('/api/services')
       .get(serviceController.get)
       .post(serviceController.post);
     this.app
-      .route('api/services/:serviceid')
+      .route('/api/services/:serviceid')
       .put(serviceController.put)
       .delete(serviceController.delete);
     this.app
-      .route('api/processes')
+      .route('/api/processes')
       .get(processController.get)
       .post(processController.post);
     this.app
-      .route('api/services/:processid')
-      .put(serviceController.put)
-      .delete(serviceController.delete);
+      .route('/api/processes/:processid')
+      .put(processController.put)
+      .delete(processController.delete);
   }
 
   private setupSocket = (): void => {
@@ -129,6 +129,23 @@ export class Server {
         };
         ws.send(JSON.stringify(data));
       }, 5000);
+
+      ws.on('message', async (msg: string) => {
+        const  message = JSON.parse(msg);
+        if (message.type === 'REFRESH') { // TODO: сделать интерфейс сообщений, общий с клиентом
+          const data = {
+            hosts: await Host.find({}),
+            services: await Service.find({}),
+            processes: await Process.find({}),
+          };
+          ws.send(JSON.stringify(data));
+        }
+      });
+
+      ws.on('close', () => {
+        console.log('client disconnected from socket');
+        clearInterval(intervalId);
+      });
 
       ws.on('error', (err) => {
         if ((err as any).code === 'ECONNRESET') {

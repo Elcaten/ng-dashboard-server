@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 
 import { Process } from '../models/process';
 
+// TODO: разобраться с копипастой
 export const processController = {
   get: (req: Request, res: Response) => {
     Process.find({}, (err, process) => {

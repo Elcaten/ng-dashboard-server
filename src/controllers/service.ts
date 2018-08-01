@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 
 import { Service } from '../models/service';
 
+// TODO: разобраться с копипастой
 export const serviceController = {
   get: (req: Request, res: Response) => {
     Service.find({}, (err, service) => {

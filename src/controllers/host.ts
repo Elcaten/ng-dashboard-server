@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 
 import { Host } from '../models/host';
 
+// TODO: разобраться с копипастой
 export const hostController = {
   get: (req: Request, res: Response) => {
     Host.find({}, (err, host) => {
