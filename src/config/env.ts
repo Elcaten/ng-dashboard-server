@@ -1,2 +1,1 @@
-export const apiPort: any = 3301;
-export const socketPort: any = 3302;
+export const port: any = process.env.PORT || 3301;

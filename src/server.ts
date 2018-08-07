@@ -8,7 +8,7 @@ import { setInterval } from 'timers';
 import * as WebSocket from 'ws';
 
 import { connectionOptions, dbUri } from './config/db';
-import { apiPort, socketPort } from './config/env';
+import { port } from './config/env';
 import { hostController } from './controllers/host';
 import { processController } from './controllers/process';
 import { serviceController } from './controllers/service';
@@ -19,19 +19,19 @@ import { Service } from './models/service';
 
 export class Server {
   private app: Express = express();
-  private server = http.createServer(this.app);
-  private wss = new WebSocket.Server({ server: this.server });
+  private wss: WebSocket.Server;
 
-  public run = (): void => {
+  constructor() {
     this.openDatabaseConnection();
     this.populateDatabaseIfEmpty();
     this.setupMiddleware();
     this.setupRoutes();
-    this.setupSocket();
     setInterval(this.updateHostsData, 5000);
 
-    this.app.listen(apiPort, () => console.log(`API server running at ${apiPort} port`));
-    this.server.listen(socketPort, () => console.log(`WebSocket server running at ${socketPort} port`));
+    const server = this.app.listen(port);
+    this.wss = new WebSocket.Server({ server });
+
+    this.setupSocket();
   }
 
   /**
@@ -131,7 +131,7 @@ export class Server {
       }, 5000);
 
       ws.on('message', async (msg: string) => {
-        const  message = JSON.parse(msg);
+        const message = JSON.parse(msg);
         if (message.type === 'REFRESH') { // TODO: сделать интерфейс сообщений, общий с клиентом
           const data = {
             hosts: await Host.find({}),

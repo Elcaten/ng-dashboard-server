@@ -1,13 +1,21 @@
 {
   "name": "ng-dashboard-server",
   "version": "0.0.3",
-  "description": "A simle angular dashboard server",
+  "description": "An API and WebSocket server for ng-dashboard-client demo",
+  "keywords": [
+    "angular",
+    "dashboard",
+    "express"
+  ],
+  "author": "Andew Lineyschikov",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/Elcaten/ng-dashboard-server"
   },
-  "author": "Andew Lineyschikov",
-  "license": "MIT",
+  "engines": {
+    "node": "8.11.1"
+  },
   "scripts": {
     "start": "npm run serve",
     "build": "npm run build-ts && npm run tslint",
@@ -19,7 +27,8 @@
     "tslint": "tslint -c tslint.json -p tsconfig.json",
     "debug": "npm run build && npm run watch-debug",
     "serve-debug": "nodemon --inspect dist/app.js",
-    "watch-debug": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold\" \"npm run watch-ts\" \"npm run serve-debug\""
+    "watch-debug": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold\" \"npm run watch-ts\" \"npm run serve-debug\"",
+    "postinstall": "npm run build"
   },
   "dependencies": {
     "body-parser": "^1.18.3",
@@ -27,7 +36,9 @@
     "express": "^4.16.3",
     "faker": "^4.1.0",
     "mongoose": "^5.2.4",
-    "ws": "^6.0.0"
+    "ws": "^6.0.0",
+    "tslint": "^5.11.0",
+    "typescript": "^2.9.2"
   },
   "devDependencies": {
     "@types/body-parser": "^1.17.0",

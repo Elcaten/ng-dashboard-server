@@ -1,5 +1,6 @@
-export const dbUri =
-  // tslint:disable-next-line:max-line-length
+// tslint:disable:max-line-length
+
+export const dbUri = process.env.DB_URI ||
   'mongodb://dbuser:JXjfOXNAFDj8mXSy@ng-dash-cluster-shard-00-00-a0jck.gcp.mongodb.net:27017,ng-dash-cluster-shard-00-01-a0jck.gcp.mongodb.net:27017,ng-dash-cluster-shard-00-02-a0jck.gcp.mongodb.net:27017/test?ssl=true&replicaSet=NG-DASH-CLUSTER-shard-0&authSource=admin&retryWrites=true';
 
 export const connectionOptions = {
