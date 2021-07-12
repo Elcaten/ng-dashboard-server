@@ -1,21 +1,22 @@
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import express, { Express, NextFunction, Request, Response } from 'express';
+import express, {Express, NextFunction, Request, Response} from 'express';
 import * as faker from 'faker';
 import http from 'http';
 import mongoose from 'mongoose';
-import { setInterval } from 'timers';
+import {setInterval} from 'timers';
 import * as WebSocket from 'ws';
 
-import { connectionOptions, dbUri } from './config/db';
-import { port } from './config/env';
-import { hostController } from './controllers/host';
-import { processController } from './controllers/process';
-import { serviceController } from './controllers/service';
-import { generateData } from './generate-data';
-import { Host } from './models/host';
-import { Process } from './models/process';
-import { Service } from './models/service';
+import {connectionOptions, dbUri} from './config/db';
+import {port} from './config/env';
+import {computersController} from './controllers/computers';
+import {hostController} from './controllers/host';
+import {processController} from './controllers/process';
+import {serviceController} from './controllers/service';
+import {generateData} from './generate-data';
+import {Host} from './models/host';
+import {Process} from './models/process';
+import {Service} from './models/service';
 
 export class Server {
   private app: Express = express();
@@ -29,7 +30,7 @@ export class Server {
     setInterval(this.updateHostsData, 5000);
 
     const server = this.app.listen(port);
-    this.wss = new WebSocket.Server({ server });
+    this.wss = new WebSocket.Server({server});
 
     this.setupSocket();
   }
@@ -80,7 +81,7 @@ export class Server {
    */
   private setupMiddleware(): void {
     this.app.use(cors());
-    this.app.use(bodyParser.urlencoded({ extended: true }));
+    this.app.use(bodyParser.urlencoded({extended: true}));
     this.app.use(bodyParser.json());
     this.app.use((req: Request, res: Response, next: NextFunction) => {
       console.log(req.method, req.originalUrl, res.statusCode);
@@ -92,6 +93,13 @@ export class Server {
    * Sets up application routes
    */
   private setupRoutes = (): void => {
+    this.app
+      .route('/api/computers')
+      .get(computersController.get)
+      .post(computersController.post)
+      .put(computersController.put)
+      .delete(computersController.delete)
+
     this.app
       .route('/api/hosts')
       .get(hostController.get)
@@ -163,10 +171,10 @@ export class Server {
   private async updateHostsData() {
     const hosts = await Host.find({});
     for (const host of hosts) {
-      host.disk = faker.random.number({ min: 0, max: 100 });
-      host.cpu = faker.random.number({ min: 0, max: 100 });
-      host.ram = faker.random.number({ min: 0, max: 100 });
-      await Host.findByIdAndUpdate(host.id, host, { new: true });
+      host.disk = faker.random.number({min: 0, max: 100});
+      host.cpu = faker.random.number({min: 0, max: 100});
+      host.ram = faker.random.number({min: 0, max: 100});
+      await Host.findByIdAndUpdate(host.id, host, {new: true});
     }
   }
 }
