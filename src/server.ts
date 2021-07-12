@@ -98,7 +98,7 @@ export class Server {
       .get(computersController.get)
       .post(computersController.post)
       .put(computersController.put)
-      .delete(computersController.delete)
+      .delete(computersController.delete);
 
     this.app
       .route('/api/hosts')

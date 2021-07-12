@@ -4,7 +4,7 @@ import {Document, Model} from 'mongoose';
 export const buildController = <T extends Document>(model: Model<T>) => {
     return {
         get: (req: Request, res: Response) => {
-            const condition = req.params._id || req.query._id ? {_id: req.params._id || req.query._id} : {}
+            const condition = req.params._id || req.query._id ? {_id: req.params._id || req.query._id} : {};
             model.find(condition, (err, result) => {
                 if (err) {
                     res.status(500).send(err);
@@ -45,5 +45,5 @@ export const buildController = <T extends Document>(model: Model<T>) => {
                 }
             );
         }
-    }
-}
+    };
+};
