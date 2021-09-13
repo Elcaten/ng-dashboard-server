@@ -9,7 +9,7 @@ import * as WebSocket from 'ws';
 
 import {connectionOptions, dbUri} from './config/db';
 import {port} from './config/env';
-import {computersController} from './controllers/computers';
+import {computerRouter} from './controllers/computer-router';
 import {hostController} from './controllers/host';
 import {processController} from './controllers/process';
 import {serviceController} from './controllers/service';
@@ -43,7 +43,7 @@ export class Server {
       () => console.log('Database connection established!'),
       (err) => console.log('Error connecting Database instance due to: ', err)
     );
-  }
+  };
 
   /**
    * Populates DB if it's empty
@@ -74,7 +74,7 @@ export class Server {
         }
       }
     });
-  }
+  };
 
   /**
    * Sets up application middleware
@@ -93,12 +93,7 @@ export class Server {
    * Sets up application routes
    */
   private setupRoutes = (): void => {
-    this.app
-      .route('/api/computers')
-      .get(computersController.get)
-      .post(computersController.post)
-      .put(computersController.put)
-      .delete(computersController.delete);
+    this.app.use('/api/computers', computerRouter);
 
     this.app
       .route('/api/hosts')
@@ -124,7 +119,7 @@ export class Server {
       .route('/api/processes/:processid')
       .put(processController.put)
       .delete(processController.delete);
-  }
+  };
 
   private setupSocket = (): void => {
     this.wss.on('connection', (ws) => {
@@ -140,7 +135,8 @@ export class Server {
 
       ws.on('message', async (msg: string) => {
         const message = JSON.parse(msg);
-        if (message.type === 'REFRESH') { // TODO: сделать интерфейс сообщений, общий с клиентом
+        if (message.type === 'REFRESH') {
+          // TODO: сделать интерфейс сообщений, общий с клиентом
           const data = {
             hosts: await Host.find({}),
             services: await Service.find({}),
@@ -163,7 +159,7 @@ export class Server {
         }
       });
     });
-  }
+  };
 
   /**
    * Updates host's cpu, disk and ram usage
