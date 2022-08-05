@@ -35,7 +35,7 @@
     "cors": "^2.8.4",
     "express": "^4.16.3",
     "faker": "^4.1.0",
-    "mongoose": "^5.2.4",
+    "mongoose": "^5.7.5",
     "ws": "^6.0.0",
     "tslint": "^5.11.0",
     "typescript": "^2.9.2"
